@@ -7,6 +7,26 @@
 
 import XCTest
 
+struct RemoteEpisodeItem: Decodable, Equatable {
+    let id: Int
+    let name: String
+    let airDate: String
+    let episode: String
+    let characters: [URL]
+    let url: URL
+    let created: String
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case airDate = "air_date"
+        case episode
+        case characters
+        case url
+        case created
+    }
+}
+
 class HTTPClient {
     var urls = [URL]()
 
@@ -51,7 +71,7 @@ class EpisodeLoader {
         self.client = client
     }
 
-    func load() async throws {
+    func load() async throws -> [RemoteEpisodeItem] {
         guard let response = try? await client.get(from: url) else {
             throw EpisodeLoaderError.connectivity
         }
@@ -59,6 +79,7 @@ class EpisodeLoader {
         if response.statusCode != 200 {
             throw EpisodeLoaderError.invalidData
         }
+        return []
     }
 }
 
@@ -99,7 +120,7 @@ class EpisodeLoaderTests: XCTestCase {
         let (sut, spy) = makeSUT(url: anyURL)
         let clientError = NSError(domain: "client error", code: 0)
 
-        await expect(sut, toCompleteWithError: .connectivity, when: {
+        await expect(sut, toCompleteWithError: .failure(.connectivity), when: {
             await spy.completeWith(error: clientError)
         })
     }
@@ -109,30 +130,42 @@ class EpisodeLoaderTests: XCTestCase {
         let samples = [199, 201, 202, 203, 204]
 
         for (id, code) in samples.enumerated() {
-            await expect(sut, toCompleteWithError: .invalidData, when: {
+            await expect(sut, toCompleteWithError: .failure(.invalidData), when: {
                 await spy.completeWithStatusCode(code: code, index: id)
             })
         }
     }
 
+    func test_load_deliversEmptyItemsOn200HTTPResponseStatusCode() async {
+        let (sut, spy) = makeSUT()
+
+        await expect(sut, toCompleteWithError: .success([]), when: {
+            await spy.completeWithStatusCode(code: 200)
+        })
+    }
+
     // MARK: - helpers
 
-    private func expect(_ sut: EpisodeLoader, toCompleteWithError expectedError: EpisodeLoader.EpisodeLoaderError?, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
+    private func expect(_ sut: EpisodeLoader, toCompleteWithError expectedResult: Swift.Result<[RemoteEpisodeItem], EpisodeLoader.EpisodeLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
 
         let task = performLoadTask(from: sut)
         await action()
 
         do {
-            try await task.value
-            XCTFail("Expected \(String(describing: expectedError)) error, got success instead", file: file, line: line)
+            let values = try await task.value
+            XCTAssertEqual(values, try expectedResult.get(), file: file, line: line)
         } catch {
-            print("[DEBUG] error", error)
-            XCTAssertEqual(error as? EpisodeLoader.EpisodeLoaderError, expectedError, file: file, line: line)
+            switch expectedResult {
+            case let .success(receivedItems):
+                XCTFail("Expected failure, but received \(receivedItems) items instead", file: file, line: line)
+            case let .failure(expectedError):
+                XCTAssertEqual(expectedError, error as? EpisodeLoader.EpisodeLoaderError, file: file, line: line)
+            }
         }
     }
 
     @discardableResult
-    private func performLoadTask(from sut: EpisodeLoader) -> Task<Void, Error> {
+    private func performLoadTask(from sut: EpisodeLoader) -> Task<[RemoteEpisodeItem], Error> {
         Task {
             try await sut.load()
         }
@@ -141,15 +174,14 @@ class EpisodeLoaderTests: XCTestCase {
     private func makeSUT(url: URL = URL(string: "http://any-url.com")!) -> (sut: EpisodeLoader, spy: HTTPClient) {
         let spy = HTTPClient()
         let sut = EpisodeLoader(url: url, client: spy)
-
         return (sut, spy)
     }
 
     private func anyURL() -> URL {
-        return URL(string: "http://any-url.com")!
+        URL(string: "http://any-url.com")!
     }
 
     private func anyNSError() -> NSError {
-        return NSError(domain: "any error", code: 0)
+        NSError(domain: "any error", code: 0)
     }
 }
