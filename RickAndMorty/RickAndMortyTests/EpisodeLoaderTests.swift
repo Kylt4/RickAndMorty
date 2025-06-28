@@ -106,10 +106,13 @@ class EpisodeLoaderTests: XCTestCase {
 
     func test_load_deliversInvalidDataErrorOnNon200HTTPResponseStatusCode() async {
         let (sut, spy) = makeSUT()
+        let samples = [199, 201, 202, 203, 204]
 
-        await expect(sut, toCompleteWithError: .invalidData, when: {
-            await spy.completeWithStatusCode(code: 199)
-        })
+        for (id, code) in samples.enumerated() {
+            await expect(sut, toCompleteWithError: .invalidData, when: {
+                await spy.completeWithStatusCode(code: code, index: id)
+            })
+        }
     }
 
     // MARK: - helpers
