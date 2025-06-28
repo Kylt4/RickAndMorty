@@ -47,4 +47,15 @@ class EpisodeLoaderTests: XCTestCase {
 
         XCTAssertEqual(spy.urls, [anyURL])
     }
+
+    func test_loadTwice_requestGetFromURLTwice() {
+        let anyURL = URL(string: "http://any-url.com")!
+        let spy = HTTPClient()
+        let sut = EpisodeLoader(url: anyURL, client: spy)
+
+        sut.load()
+        sut.load()
+
+        XCTAssertEqual(spy.urls, [anyURL, anyURL])
+    }
 }
