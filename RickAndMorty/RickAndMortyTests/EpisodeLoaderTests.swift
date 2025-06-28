@@ -99,35 +99,34 @@ class EpisodeLoaderTests: XCTestCase {
         let (sut, spy) = makeSUT(url: anyURL)
         let clientError = NSError(domain: "client error", code: 0)
 
-        let task = performLoadTask(from: sut)
-        await spy.completeWith(error: clientError)
-
-        do {
-            try await task.value
-            XCTFail("Expected \(clientError) error, got success instead")
-        } catch {
-            XCTAssertEqual(error as? EpisodeLoader.EpisodeLoaderError, .connectivity)
-        }
+        await expect(sut, toCompleteWithError: .connectivity, when: {
+            await spy.completeWith(error: clientError)
+        })
     }
 
     func test_load_deliversInvalidDataErrorOnNon200HTTPResponseStatusCode() async {
-        let anyURL = anyURL()
-        let (sut, spy) = makeSUT(url: anyURL)
-        let clientError = NSError(domain: "client error", code: 0)
+        let (sut, spy) = makeSUT()
 
-        let task = performLoadTask(from: sut)
-        await spy.completeWithStatusCode(code: 199)
-
-        do {
-            try await task.value
-            XCTFail("Expected \(clientError) error, got success instead")
-        } catch {
-            print("[DEBUG] error", error)
-            XCTAssertEqual(error as? EpisodeLoader.EpisodeLoaderError, .invalidData)
-        }
+        await expect(sut, toCompleteWithError: .invalidData, when: {
+            await spy.completeWithStatusCode(code: 199)
+        })
     }
 
     // MARK: - helpers
+
+    private func expect(_ sut: EpisodeLoader, toCompleteWithError expectedError: EpisodeLoader.EpisodeLoaderError?, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
+
+        let task = performLoadTask(from: sut)
+        await action()
+
+        do {
+            try await task.value
+            XCTFail("Expected \(String(describing: expectedError)) error, got success instead", file: file, line: line)
+        } catch {
+            print("[DEBUG] error", error)
+            XCTAssertEqual(error as? EpisodeLoader.EpisodeLoaderError, expectedError, file: file, line: line)
+        }
+    }
 
     @discardableResult
     private func performLoadTask(from sut: EpisodeLoader) -> Task<Void, Error> {
