@@ -32,16 +32,14 @@ class EpisodeLoader {
 class EpisodeLoaderTests: XCTestCase {
 
     func test_init_doesNotRequestGetFromURL() {
-        let spy = HTTPClient()
-        let _ = EpisodeLoader(url: URL(string: "http://any-url.com")!, client: spy)
+        let (_, spy) = makeSUT()
 
         XCTAssertTrue(spy.urls.isEmpty)
     }
 
     func test_load_requestGetFromURL() {
-        let anyURL = URL(string: "http://any-url.com")!
-        let spy = HTTPClient()
-        let sut = EpisodeLoader(url: anyURL, client: spy)
+        let anyURL = anyURL()
+        let (sut, spy) = makeSUT(url: anyURL)
 
         sut.load()
 
@@ -49,13 +47,25 @@ class EpisodeLoaderTests: XCTestCase {
     }
 
     func test_loadTwice_requestGetFromURLTwice() {
-        let anyURL = URL(string: "http://any-url.com")!
-        let spy = HTTPClient()
-        let sut = EpisodeLoader(url: anyURL, client: spy)
+        let anyURL = anyURL()
+        let (sut, spy) = makeSUT(url: anyURL)
 
         sut.load()
         sut.load()
 
         XCTAssertEqual(spy.urls, [anyURL, anyURL])
+    }
+
+    // MARK: - helpers
+
+    private func makeSUT(url: URL = URL(string: "http://any-url.com")!) -> (sut: EpisodeLoader, spy: HTTPClient) {
+        let spy = HTTPClient()
+        let sut = EpisodeLoader(url: url, client: spy)
+
+        return (sut, spy)
+    }
+
+    private func anyURL() -> URL {
+        return URL(string: "http://any-url.com")!
     }
 }
