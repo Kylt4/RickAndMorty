@@ -149,12 +149,4 @@ class EpisodeLoaderTests: XCTestCase {
         let sut = RemoteEpisodeLoader(url: url, client: spy)
         return (sut, spy)
     }
-
-    private func anyURL() -> URL {
-        URL(string: "http://any-url.com")!
-    }
-
-    private func anyNSError() -> NSError {
-        NSError(domain: "any error", code: 0)
-    }
 }
