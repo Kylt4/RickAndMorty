@@ -9,24 +9,6 @@ import Foundation
 import XCTest
 import RickAndMorty
 
-class URLSessionHTTPClient {
-    let session: URLSession
-
-    init(session: URLSession) {
-        self.session = session
-    }
-
-    private struct UnexpectedValuesRepresentation: Error {}
-
-    func get(from url: URL) async throws -> (response: HTTPURLResponse, data: Data) {
-        let (data, response) = try await session.data(from: url)
-        if let httpURLResponse = response as? HTTPURLResponse {
-            return ((httpURLResponse, data))
-        }
-        throw UnexpectedValuesRepresentation()
-    }
-}
-
 class URLSessionHTTPClientTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
@@ -105,7 +87,7 @@ class URLSessionHTTPClientTests: XCTestCase {
         }
     }
 
-    private func makeSUT() -> URLSessionHTTPClient {
+    private func makeSUT() -> HTTPClient {
         let config = URLSessionConfiguration.ephemeral
         config.protocolClasses = [MockURLProtocol.self]
         let session = URLSession(configuration: config)
