@@ -110,17 +110,10 @@ class EpisodeLoader {
             throw EpisodeLoaderError.connectivity
         }
 
-        if result.response.statusCode != 200 {
+        guard result.response.statusCode == 200, let page = try? JSONDecoder().decode(PageEpisodeItems.self, from: result.data) else {
             throw EpisodeLoaderError.invalidData
         }
-
-        do {
-            let page = try JSONDecoder().decode(PageEpisodeItems.self, from: result.data)
-            return page
-        } catch {
-            print(error)
-            fatalError()
-        }
+        return page
     }
 }
 
@@ -192,6 +185,14 @@ class EpisodeLoaderTests: XCTestCase {
 
         await expect(sut, toCompleteWithError: .success(item.model), when: {
             await spy.completeWithStatusCode(code: 200, data: item.data)
+        })
+    }
+
+    func test_load_deliversInvalidDataOn200HTTPResponseWithInvalidData() async {
+        let (sut, spy) = makeSUT()
+
+        await expect(sut, toCompleteWithError: .failure(.invalidData), when: {
+            await spy.completeWithStatusCode(code: 200, data: "invalid data".data(using: .utf8)!)
         })
     }
 
