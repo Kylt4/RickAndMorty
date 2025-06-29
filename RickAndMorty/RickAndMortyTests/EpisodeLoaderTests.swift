@@ -119,7 +119,7 @@ class EpisodeLoaderTests: XCTestCase {
         return (page, data)
     }
 
-    private func expect(_ sut: RemoteEpisodeLoader, toCompleteWithError expectedResult: Swift.Result<PageEpisodeItems, RemoteEpisodeLoader.RemoteEpisodeLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
+    private func expect(_ sut: RemoteEpisodeLoader, toCompleteWithError expectedResult: Swift.Result<PageEpisodeItems, RemoteLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
 
         let task = performLoadTask(from: sut)
         await action()
@@ -132,7 +132,7 @@ class EpisodeLoaderTests: XCTestCase {
             case let .success(receivedItems):
                 XCTFail("Expected failure, but received \(receivedItems) items instead", file: file, line: line)
             case let .failure(expectedError):
-                XCTAssertEqual(expectedError, error as? RemoteEpisodeLoader.RemoteEpisodeLoaderError, file: file, line: line)
+                XCTAssertEqual(expectedError, error as? RemoteLoaderError, file: file, line: line)
             }
         }
     }
