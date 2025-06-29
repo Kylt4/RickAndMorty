@@ -109,7 +109,7 @@ class CharacterLoaderTests: XCTestCase {
         return (item, data)
     }
 
-    private func expect(_ sut: RemoteCharacterLoader, toCompleteWithError expectedResult: Swift.Result<CharacterItem, RemoteCharacterLoader.RemoteCharacterLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
+    private func expect(_ sut: RemoteCharacterLoader, toCompleteWithError expectedResult: Swift.Result<CharacterItem, RemoteLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
 
         let task = performLoadTask(from: sut)
         await action()
@@ -122,7 +122,7 @@ class CharacterLoaderTests: XCTestCase {
             case .success:
                 XCTFail("Expected \(expectedResult), but received \(error) error instead", file: file, line: line)
             case let .failure(expectedError):
-                XCTAssertEqual(expectedError, error as? RemoteCharacterLoader.RemoteCharacterLoaderError, file: file, line: line)
+                XCTAssertEqual(expectedError, error as? RemoteLoaderError, file: file, line: line)
             }
         }
     }
