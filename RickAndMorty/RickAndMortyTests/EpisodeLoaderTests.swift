@@ -7,12 +7,34 @@
 
 import XCTest
 
-struct PageEpisodeItems: Decodable, Equatable {
+struct PageEpisodeItems: Equatable {
     let info: PageInfo
+    let results: [EpisodeItem]
+}
+
+struct PageInfo: Equatable {
+    let count: Int
+    let pages: Int
+    let prev: URL?
+    let next: URL?
+}
+
+struct EpisodeItem: Equatable {
+    let id: Int
+    let name: String
+    let airDate: String
+    let episode: String
+    let episodeURL: URL
+    let created: Date
+    let characters: [URL]
+}
+
+struct RemotePageEpisodeItems: Decodable, Equatable {
+    let info: RemotePageInfo
     let results: [RemoteEpisodeItem]
 }
 
-struct PageInfo: Decodable, Equatable {
+struct RemotePageInfo: Decodable, Equatable {
     let count: Int
     let pages: Int
     let prev: URL?
@@ -110,10 +132,30 @@ class EpisodeLoader {
             throw EpisodeLoaderError.connectivity
         }
 
-        guard result.response.statusCode == 200, let page = try? JSONDecoder().decode(PageEpisodeItems.self, from: result.data) else {
+        guard result.response.statusCode == 200, let page = try? JSONDecoder().decode(RemotePageEpisodeItems.self, from: result.data) else {
             throw EpisodeLoaderError.invalidData
         }
-        return page
+        return page.toLocal
+    }
+}
+
+extension RemotePageEpisodeItems {
+    var toLocal: PageEpisodeItems {
+        return PageEpisodeItems(
+            info: PageInfo(count: info.count,
+                           pages: info.pages,
+                           prev: info.prev,
+                           next: info.next),
+            results: results.map { item in
+                EpisodeItem(id: item.id,
+                            name: item.name,
+                            airDate: item.airDate,
+                            episode: item.episode,
+                            episodeURL: item.episodeURL,
+                            created: item.created,
+                            characters: item.characters)
+            }
+        )
     }
 }
 
@@ -174,7 +216,7 @@ class EpisodeLoaderTests: XCTestCase {
         let (sut, spy) = makeSUT()
         let item = makeItems(prev: nil, next: nil)
 
-        await expect(sut, toCompleteWithError: .success(item.model), when: {
+        await expect(sut, toCompleteWithError: .success(item.model.toLocal), when: {
             await spy.completeWithStatusCode(code: 200, data: item.data)
         })
     }
@@ -183,7 +225,7 @@ class EpisodeLoaderTests: XCTestCase {
         let (sut, spy) = makeSUT()
         let item = makeItems(prev: URL(string: "http://prev-url.com")!, next: URL(string: "http://next-url.com")!)
 
-        await expect(sut, toCompleteWithError: .success(item.model), when: {
+        await expect(sut, toCompleteWithError: .success(item.model.toLocal), when: {
             await spy.completeWithStatusCode(code: 200, data: item.data)
         })
     }
@@ -198,11 +240,11 @@ class EpisodeLoaderTests: XCTestCase {
 
     // MARK: - helpers
 
-    private func makeItems(prev: URL?, next: URL?) -> (model: PageEpisodeItems, data: Data) {
+    private func makeItems(prev: URL?, next: URL?) -> (model: RemotePageEpisodeItems, data: Data) {
         let date = Date(timeIntervalSince1970: 1751179947)
-        let pageInfo = PageInfo(count: 10, pages: 0, prev: prev, next: next)
+        let pageInfo = RemotePageInfo(count: 10, pages: 0, prev: prev, next: next)
         let item = RemoteEpisodeItem(id: 0, name: "any name", airDate: "any date", episode: "any episodes", episodeURL: URL(string: "http://any-episode-url.com")!, created: date, characters: [URL(string: "http://any-character-url.com")!])
-        let page = PageEpisodeItems(info: pageInfo, results: [item])
+        let page = RemotePageEpisodeItems(info: pageInfo, results: [item])
 
         let infoJSON: [String: Any?] = [
             "count": pageInfo.count,
