@@ -46,7 +46,7 @@ class CharacterLoaderTests: XCTestCase {
         let (sut, spy) = makeSUT(url: anyURL)
         let clientError = NSError(domain: "client error", code: 0)
 
-        await expect(sut, toCompleteWithError: .failure(.connectivity), when: {
+        await expect(sut, toCompleteWithResult: .failure(.connectivity), when: {
             await spy.completeWith(error: clientError)
         })
     }
@@ -56,7 +56,7 @@ class CharacterLoaderTests: XCTestCase {
         let samples = [199, 201, 202, 203, 204]
 
         for (id, code) in samples.enumerated() {
-            await expect(sut, toCompleteWithError: .failure(.invalidData), when: {
+            await expect(sut, toCompleteWithResult: .failure(.invalidData), when: {
                 await spy.completeWithStatusCode(code: code, index: id)
             })
         }
@@ -66,7 +66,7 @@ class CharacterLoaderTests: XCTestCase {
         let (sut, spy) = makeSUT()
         let item = makeItem()
 
-        await expect(sut, toCompleteWithError: .success(item.model), when: {
+        await expect(sut, toCompleteWithResult: .success(item.model), when: {
             await spy.completeWithStatusCode(code: 200, data: item.data)
         })
     }
@@ -74,7 +74,7 @@ class CharacterLoaderTests: XCTestCase {
     func test_load_deliversInvalidDataOn200HTTPResponseWithInvalidData() async {
         let (sut, spy) = makeSUT()
 
-        await expect(sut, toCompleteWithError: .failure(.invalidData), when: {
+        await expect(sut, toCompleteWithResult: .failure(.invalidData), when: {
             await spy.completeWithStatusCode(code: 200, data: "invalid data".data(using: .utf8)!)
         })
     }
@@ -109,7 +109,7 @@ class CharacterLoaderTests: XCTestCase {
         return (item, data)
     }
 
-    private func expect(_ sut: RemoteCharacterLoader, toCompleteWithError expectedResult: Swift.Result<CharacterItem, RemoteLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
+    private func expect(_ sut: RemoteCharacterLoader, toCompleteWithResult expectedResult: Swift.Result<CharacterItem, RemoteLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
 
         let task = performLoadTask(from: sut)
         await action()

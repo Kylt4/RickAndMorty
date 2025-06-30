@@ -1,5 +1,5 @@
 //
-//  EpisodeLoaderTests.swift
+//  RemoteEpisodeLoaderTests.swift
 //  RickAndMortyTests
 //
 //  Created by Christophe Bugnon on 28/06/2025.
@@ -8,7 +8,7 @@
 import XCTest
 import RickAndMorty
 
-class EpisodeLoaderTests: XCTestCase {
+class RemoteEpisodeLoaderTests: XCTestCase {
 
     func test_init_doesNotRequestGetFromURL() {
         let (_, spy) = makeSUT()
@@ -45,7 +45,7 @@ class EpisodeLoaderTests: XCTestCase {
         let (sut, spy) = makeSUT(url: anyURL)
         let clientError = NSError(domain: "client error", code: 0)
 
-        await expect(sut, toCompleteWithError: .failure(.connectivity), when: {
+        await expect(sut, toCompleteWithResult: .failure(.connectivity), when: {
             await spy.completeWith(error: clientError)
         })
     }
@@ -55,7 +55,7 @@ class EpisodeLoaderTests: XCTestCase {
         let samples = [199, 201, 202, 203, 204]
 
         for (id, code) in samples.enumerated() {
-            await expect(sut, toCompleteWithError: .failure(.invalidData), when: {
+            await expect(sut, toCompleteWithResult: .failure(.invalidData), when: {
                 await spy.completeWithStatusCode(code: code, index: id)
             })
         }
@@ -65,7 +65,7 @@ class EpisodeLoaderTests: XCTestCase {
         let (sut, spy) = makeSUT()
         let item = makeItems(prev: nil, next: nil)
 
-        await expect(sut, toCompleteWithError: .success(item.model), when: {
+        await expect(sut, toCompleteWithResult: .success(item.model), when: {
             await spy.completeWithStatusCode(code: 200, data: item.data)
         })
     }
@@ -74,7 +74,7 @@ class EpisodeLoaderTests: XCTestCase {
         let (sut, spy) = makeSUT()
         let item = makeItems(prev: URL(string: "http://prev-url.com")!, next: URL(string: "http://next-url.com")!)
 
-        await expect(sut, toCompleteWithError: .success(item.model), when: {
+        await expect(sut, toCompleteWithResult: .success(item.model), when: {
             await spy.completeWithStatusCode(code: 200, data: item.data)
         })
     }
@@ -82,7 +82,7 @@ class EpisodeLoaderTests: XCTestCase {
     func test_load_deliversInvalidDataOn200HTTPResponseWithInvalidData() async {
         let (sut, spy) = makeSUT()
 
-        await expect(sut, toCompleteWithError: .failure(.invalidData), when: {
+        await expect(sut, toCompleteWithResult: .failure(.invalidData), when: {
             await spy.completeWithStatusCode(code: 200, data: "invalid data".data(using: .utf8)!)
         })
     }
@@ -119,7 +119,7 @@ class EpisodeLoaderTests: XCTestCase {
         return (page, data)
     }
 
-    private func expect(_ sut: RemoteEpisodeLoader, toCompleteWithError expectedResult: Swift.Result<PageEpisodeItems, RemoteLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
+    private func expect(_ sut: RemoteEpisodeLoader, toCompleteWithResult expectedResult: Swift.Result<PageEpisodeItems, RemoteLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
 
         let task = performLoadTask(from: sut)
         await action()
