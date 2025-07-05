@@ -83,16 +83,7 @@ class CharacterLoaderTests: XCTestCase {
 
     private func makeItem() -> (model: CharacterItem, data: Data) {
         let date = anyDate()
-        let item = CharacterItem(id: 0,
-                                 name: "any name",
-                                 status: "any status",
-                                 species: "any species",
-                                 type: "any type",
-                                 gender: "any gender",
-                                 origin: LocationInfoItem(name: "any origin", url: anyURL()),
-                                 location: LocationInfoItem(name: "any location", url: anyURL()),
-                                 image: anyURL(),
-                                 created: date)
+        let item = anyCharacterItem()
         let json: [String: Any] = [
             "id": item.id,
             "name": item.name,
