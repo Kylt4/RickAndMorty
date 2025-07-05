@@ -7,6 +7,6 @@
 
 import Foundation
 
-public protocol CharacterLoader {
+public protocol CharacterLoader: Loader {
     func load() async throws -> CharacterItem
 }

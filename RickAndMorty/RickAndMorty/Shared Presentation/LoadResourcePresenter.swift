@@ -8,24 +8,24 @@
 import Foundation
 
 public protocol LoadResourceDelegate {
-    associatedtype ResourcePresentationItem
+    associatedtype Item
 
     func didStartLoading()
     func didFinishLoading(with error: Error)
-    func didFinishLoading(with item: ResourcePresentationItem)
+    func didFinishLoading(with item: Item)
 }
 
-public final class LoadResourcePresenter<Delegate: LoadResourceDelegate> {
-    private let loader: () async throws -> Delegate.ResourcePresentationItem
+public final class LoadResourcePresenter<L: Loader, Delegate: LoadResourceDelegate> where L.Item == Delegate.Item {
+    private let loader: L
     private let delegate: Delegate
     private var isLoading = false
 
-    public init(loader: @escaping () async throws -> Delegate.ResourcePresentationItem, delegate: Delegate) {
+    public init(loader: L, delegate: Delegate) {
         self.loader = loader
         self.delegate = delegate
     }
 
-    public func loadEpisodes() {
+    public func load() {
         guard !isLoading else { return }
 
         delegate.didStartLoading()
@@ -35,7 +35,7 @@ public final class LoadResourcePresenter<Delegate: LoadResourceDelegate> {
             defer { isLoading = false }
 
             do {
-                let item = try await loader()
+                let item = try await loader.load()
                 delegate.didFinishLoading(with: item)
             } catch {
                 delegate.didFinishLoading(with: error)

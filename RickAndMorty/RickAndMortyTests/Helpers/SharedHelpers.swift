@@ -48,6 +48,10 @@ func anyPageEpisodeItems() -> PageEpisodeItems {
     return PageEpisodeItems(info: pageInfo(prev: nil, next: nil), results: [anyEpisodeItem()])
 }
 
+func waitForCompletions() async {
+    try? await Task.sleep(for: .milliseconds(1))
+}
+
 func waitForContinuation() async {
     try? await Task.sleep(for: .milliseconds(1))
 }

@@ -17,13 +17,13 @@ final class RemoteLoader<T: Equatable> {
     private let client: HTTPClient
     private let mapper: (Data) throws -> T
 
-    init(url: URL, client: HTTPClient, mapper: @escaping (Data) throws -> T) {
+    public init(url: URL, client: HTTPClient, mapper: @escaping (Data) throws -> T) {
         self.url = url
         self.client = client
         self.mapper = mapper
     }
 
-    func load() async throws -> T {
+    public func load() async throws -> T {
         guard let result = try? await client.get(from: url) else {
             throw RemoteLoaderError.connectivity
         }

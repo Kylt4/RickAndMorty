@@ -7,6 +7,6 @@
 
 import Foundation
 
-public protocol EpisodeLoader {
+public protocol EpisodeLoader: Loader {
     func load() async throws -> PageEpisodeItems
 }

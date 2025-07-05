@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol ImageDataLoader {
+protocol ImageDataLoader: Loader {
     func load() async throws -> Data
 }

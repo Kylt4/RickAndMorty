@@ -1,5 +1,5 @@
 //
-//  LoadCharacterPresenterTests.swift
+//  LoadCharacterViewModelTests.swift
 //  RickAndMortyTests
 //
 //  Created by Christophe Bugnon on 05/07/2025.
@@ -9,46 +9,58 @@ import RickAndMorty
 import Foundation
 import Testing
 
-class LoadCharacterPresenterTests {
+class LoadCharacterViewModelTests {
     @Test
-    func test_init_doesNotRequestLoadCharacter() {
-        let (_, spy) = makeSUT()
+    func test_init_doesNotRequestLoadEpisode() {
+        let (sut, spy) = makeSUT()
 
         #expect(spy.loadCallCount == 0)
+        #expect(sut.isLoading == false)
     }
 
     @Test
     func test_loadCharacter_requestLoadFromLoader() async {
         let (sut, spy) = makeSUT()
 
-        sut.load()
+        let task = Task { await sut.load() }
         spy.completeLoad(with: anyNSError())
+        await task.value
 
         #expect(spy.loadCallCount == 1)
+        #expect(spy.isOnMainThread == false)
+        #expect(sut.isLoading == false)
     }
 
     @Test
     func test_loadCharacter_canLoadAnotherRequestAfterTheLastOneIsFinished() async {
         let (sut, spy) = makeSUT()
 
-        sut.load()
-        spy.completeLoad(with: anyNSError())
-        _ = try? await spy.waitForResponse()
+        let task = Task {
+            await sut.load()
+        }
 
-        sut.load()
         spy.completeLoad(with: anyNSError())
+        await task.value
 
+        Task { await sut.load() }
+        try? await Task.sleep(nanoseconds: 1_000_000)
+
+        #expect(spy.isOnMainThread == false)
         #expect(spy.loadCallCount == 2)
+        #expect(sut.isLoading == true)
     }
 
     @Test
     func test_loadCharacter_cannotLoadAnotherResourceWhileTheCurrentIsRunning() async {
         let (sut, spy) = makeSUT()
 
-        sut.load()
-        sut.load()
+        Task { await sut.load() }
+        Task { await sut.load() }
 
+        await waitForCompletions()
+        #expect(spy.isOnMainThread == false)
         #expect(spy.loadCallCount == 1)
+        #expect(sut.isLoading == true)
     }
 
     @Test
@@ -56,45 +68,47 @@ class LoadCharacterPresenterTests {
         let (sut, spy) = makeSUT()
         let error = anyNSError()
 
-        sut.load()
+        let task = Task { await sut.load() }
         spy.completeLoad(with: error)
+        await task.value
 
-        let receivedError = await #expect(throws: Error.self, performing: spy.waitForResponse)
-        #expect(receivedError as? NSError == error)
+        await waitForCompletions()
+        #expect(spy.isOnMainThread == false)
+        #expect((spy.receivedError as? NSError) == error)
+        #expect((sut.error as? NSError) == error)
     }
 
     @Test
     func test_loadCharacter_deliversItemOnSuccess() async {
         let (sut, spy) = makeSUT()
         let item = anyCharacterItem()
-        
-        sut.load()
-        spy.completeLoad(with: item)
 
-        let response = try? await spy.waitForResponse()
-        #expect(response == item)
+        let task = Task { await sut.load() }
+        spy.completeLoad(with: item)
+        await task.value
+
+        await waitForCompletions()
+        #expect(spy.isOnMainThread == false)
+        #expect(spy.receivedItem == item)
+        #expect(sut.item == item)
     }
 
     // MARK: - Helpers
 
-    private func makeSUT() -> (sut: LoadResourcePresenter<LoadCharacterSpy, LoadCharacterSpy>, spy: LoadCharacterSpy) {
-        let spy = LoadCharacterSpy()
-        let sut = LoadResourcePresenter(loader: spy, delegate: spy)
+    private func makeSUT() -> (sut: LoadResourceViewModel<LoadSpy, LoadSpy>, spy: LoadSpy) {
+        let spy = LoadSpy()
+        let sut = LoadResourceViewModel(loader: spy, delegate: spy)
         return (sut, spy)
     }
 
-    class LoadCharacterSpy: LoadResourceDelegate, CharacterLoader {
+    class LoadSpy: LoadResourceDelegate, CharacterLoader {
         typealias Item = CharacterItem
         private(set) var loadCallCount = 0
+        private(set) var receivedItem: Item?
+        private(set) var receivedError: Error?
+        private(set) var isOnMainThread: Bool?
 
         private var loadContinuation: CheckedContinuation<CharacterItem, Error>?
-        private var delegateContinuation: CheckedContinuation<CharacterItem, Error>?
-
-        func waitForResponse() async throws -> CharacterItem {
-            return try await withCheckedThrowingContinuation { continuation in
-                delegateContinuation = continuation
-            }
-        }
 
         // MARK: - Load
 
@@ -123,23 +137,18 @@ class LoadCharacterPresenterTests {
         // MARK: - Delegate
 
         func didStartLoading() {
+            isOnMainThread = Thread.isMainThread
             loadCallCount += 1
         }
 
         func didFinishLoading(with error: Error) {
-            Task {
-                await waitForContinuation()
-                delegateContinuation?.resume(throwing: error)
-                delegateContinuation = nil
-            }
+            isOnMainThread = Thread.isMainThread
+            receivedError = error
         }
 
         func didFinishLoading(with item: CharacterItem) {
-            Task {
-                await waitForContinuation()
-                delegateContinuation?.resume(returning: item)
-                delegateContinuation = nil
-            }
+            isOnMainThread = Thread.isMainThread
+            receivedItem = item
         }
     }
 }
