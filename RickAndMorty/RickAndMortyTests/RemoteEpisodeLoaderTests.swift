@@ -90,9 +90,9 @@ class RemoteEpisodeLoaderTests: XCTestCase {
     // MARK: - helpers
 
     private func makeItems(prev: URL?, next: URL?) -> (model: PageEpisodeItems, data: Data) {
-        let date = Date(timeIntervalSince1970: 1751179947)
-        let pageInfo = PageInfo(count: 10, pages: 0, prev: prev, next: next)
-        let item = EpisodeItem(id: 0, name: "any name", airDate: "any date", episode: "any episodes", episodeURL: URL(string: "http://any-episode-url.com")!, created: date, characters: [URL(string: "http://any-character-url.com")!])
+        let date = anyDate()
+        let pageInfo = pageInfo(prev: prev, next: next)
+        let item = anyEpisodeItem()
         let page = PageEpisodeItems(info: pageInfo, results: [item])
 
         let infoJSON: [String: Any?] = [

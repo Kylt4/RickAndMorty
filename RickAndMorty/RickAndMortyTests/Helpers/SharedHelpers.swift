@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RickAndMorty
 
 func anyURL() -> URL {
     URL(string: "http://any-url.com")!
@@ -25,4 +26,24 @@ func anyHTTPURLResponse() -> HTTPURLResponse {
 
 func anyData() -> Data {
     Data("any data".utf8)
+}
+
+func anyDate() -> Date {
+    return Date(timeIntervalSince1970: 1751179947)
+}
+
+func anyEpisodeItem() -> EpisodeItem {
+    EpisodeItem(id: Int.random(in: 0...Int.max), name: "any name", airDate: "any air date", episode: "any episode", episodeURL: anyURL(), created: anyDate(), characters: [anyURL()])
+}
+
+func pageInfo(prev: URL?, next: URL?) -> PageInfo {
+    PageInfo(count: Int.random(in: 0...Int.max), pages: Int.random(in: 0...Int.max), prev: prev, next: next)
+}
+
+func anyPageEpisodeItems() -> PageEpisodeItems {
+    return PageEpisodeItems(info: pageInfo(prev: nil, next: nil), results: [anyEpisodeItem()])
+}
+
+func waitForContinuation() async {
+    try? await Task.sleep(for: .milliseconds(1))
 }

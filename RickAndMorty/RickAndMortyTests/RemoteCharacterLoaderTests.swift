@@ -82,7 +82,7 @@ class CharacterLoaderTests: XCTestCase {
     // MARK: - helpers
 
     private func makeItem() -> (model: CharacterItem, data: Data) {
-        let date = Date(timeIntervalSince1970: 1751179947)
+        let date = anyDate()
         let item = CharacterItem(id: 0,
                                  name: "any name",
                                  status: "any status",
