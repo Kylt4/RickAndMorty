@@ -1,15 +1,15 @@
 //
-//  LoadEpisodePresenterTests.swift
+//  LoadCharacterPresenterTests.swift
 //  RickAndMortyTests
 //
-//  Created by Christophe Bugnon on 02/07/2025.
+//  Created by Christophe Bugnon on 05/07/2025.
 //
 
 import RickAndMorty
 import Foundation
 import Testing
 
-class LoadEpisodePresenterTests {
+class LoadCharacterPresenterTests {
     @Test
     func test_init_doesNotRequestLoadEpisode() {
         let (_, spy) = makeSUT()
@@ -66,8 +66,8 @@ class LoadEpisodePresenterTests {
     @Test
     func test_loadEpisodes_deliversItemOnSuccess() async {
         let (sut, spy) = makeSUT()
-        let item = anyPageEpisodeItems()
-
+        let item = anyCharacterItem()
+        
         sut.loadEpisodes()
         spy.completeLoad(with: item)
 
@@ -77,20 +77,20 @@ class LoadEpisodePresenterTests {
 
     // MARK: - Helpers
 
-    private func makeSUT() -> (sut: LoadResourcePresenter<LoadEpisodeSpy>, spy: LoadEpisodeSpy) {
-        let spy = LoadEpisodeSpy()
+    private func makeSUT() -> (sut: LoadResourcePresenter<LoadCharacterSpy>, spy: LoadCharacterSpy) {
+        let spy = LoadCharacterSpy()
         let sut = LoadResourcePresenter(loader: spy.load, delegate: spy)
         return (sut, spy)
     }
 
-    class LoadEpisodeSpy: LoadResourceDelegate {
-        typealias ResourcePresentationItem = PageEpisodeItems
+    class LoadCharacterSpy: LoadResourceDelegate {
+        typealias ResourcePresentationItem = CharacterItem
         private(set) var loadCallCount = 0
 
-        private var loadContinuation: CheckedContinuation<PageEpisodeItems, Error>?
-        private var delegateContinuation: CheckedContinuation<PageEpisodeItems, Error>?
+        private var loadContinuation: CheckedContinuation<CharacterItem, Error>?
+        private var delegateContinuation: CheckedContinuation<CharacterItem, Error>?
 
-        func waitForResponse() async throws -> PageEpisodeItems {
+        func waitForResponse() async throws -> CharacterItem {
             return try await withCheckedThrowingContinuation { continuation in
                 delegateContinuation = continuation
             }
@@ -98,7 +98,7 @@ class LoadEpisodePresenterTests {
 
         // MARK: - Load
 
-        func load() async throws -> PageEpisodeItems {
+        func load() async throws -> CharacterItem {
             return try await withCheckedThrowingContinuation { continuation in
                 loadContinuation = continuation
             }
@@ -112,7 +112,7 @@ class LoadEpisodePresenterTests {
             }
         }
 
-        func completeLoad(with item: PageEpisodeItems) {
+        func completeLoad(with item: CharacterItem) {
             Task {
                 await waitForContinuation()
                 loadContinuation?.resume(returning: item)
@@ -134,7 +134,7 @@ class LoadEpisodePresenterTests {
             }
         }
 
-        func didFinishLoading(with item: PageEpisodeItems) {
+        func didFinishLoading(with item: CharacterItem) {
             Task {
                 await waitForContinuation()
                 delegateContinuation?.resume(returning: item)
