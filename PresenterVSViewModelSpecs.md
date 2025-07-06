@@ -84,4 +84,4 @@
 | **LoadResourcePresenter** | - Simple and easy to understand<br>- Delegates threading to caller (less internal complexity)<br>- Clear separation of loading and mapping via delegate | - No explicit UI state management<br>- SRP violated by mixing loading & mapping |
 | **LoadResourceViewModel** | - Exposes observable state for UI binding<br>- Internal threading to avoid blocking main thread<br>- Handles errors and loading state internally<br>- Requires explicit mapping layer despite abstraction in presenter | - More complex and harder to maintain<br>- SRP violated by mixing multiple concerns<br>- Threading logic coupled with loading and mapping |
 
-![diagram-presenter-viewmodel.pd](diagram-presenter-viewmodel.pdf)
+![diagram-presenter-viewmodel.pdf](diagram-presenter-viewmodel.pdf)

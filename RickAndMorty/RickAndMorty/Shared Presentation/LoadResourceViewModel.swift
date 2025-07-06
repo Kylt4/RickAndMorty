@@ -32,27 +32,22 @@ public final class LoadResourceViewModel<L: Loader, Delegate: LoadResourceDelega
     @MainActor
     public func load() async {
         guard !isLoading else { return }
+        defer { isLoading = false }
+
         let delegate = delegate
         let mapper = mapper
-        Task.detached {
-            delegate.didStartLoading()
-        }
-
-        defer { isLoading = false }
+        
+        Task.detached { delegate.didStartLoading() }
         isLoading = true
         error = nil
 
         do {
             let item = try mapper(await loader.load())
             self.item = item
-            Task.detached {
-                delegate.didFinishLoading(with: item)
-            }
+            Task.detached { delegate.didFinishLoading(with: item) }
         } catch let receivedError {
             error = receivedError
-            Task.detached {
-                delegate.didFinishLoading(with: receivedError)
-            }
+            Task.detached { delegate.didFinishLoading(with: receivedError) }
         }
     }
 }
