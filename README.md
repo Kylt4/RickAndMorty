@@ -6,3 +6,5 @@
 # [Character Features Specs](./CharacterFeaturesSpecs.md)
 
 # [Image Features Specs](./ImageFeaturesSpecs.md)
+
+# [Presenter VS ViewModel](/.PresenterVSViewModelSpecs.md)
