@@ -25,9 +25,23 @@
 		463517C82E1007BD00778E71 /* RickAndMortyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RickAndMortyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		462449DF2E1AB117004B8722 /* Exceptions for "RickAndMorty" folder in "RickAndMortyTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Shared Presentation/LoadResourcePresenter.swift",
+				"Shared Presentation/Shared.xcstrings",
+			);
+			target = 463517C72E1007BD00778E71 /* RickAndMortyTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		463517C12E1007BC00778E71 /* RickAndMorty */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				462449DF2E1AB117004B8722 /* Exceptions for "RickAndMorty" folder in "RickAndMortyTests" target */,
+			);
 			path = RickAndMorty;
 			sourceTree = "<group>";
 		};
@@ -160,6 +174,7 @@
 			knownRegions = (
 				en,
 				Base,
+				fr,
 			);
 			mainGroup = 463517B52E1007BC00778E71;
 			minimizedProjectReferenceProxies = 1;
@@ -278,6 +293,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -338,6 +354,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
