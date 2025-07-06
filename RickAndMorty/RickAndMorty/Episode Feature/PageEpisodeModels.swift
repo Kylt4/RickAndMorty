@@ -1,5 +1,5 @@
 //
-//  PageEpisodeItems.swift
+//  PageEpisodeModels.swift
 //  RickAndMorty
 //
 //  Created by Christophe Bugnon on 29/06/2025.
@@ -7,11 +7,11 @@
 
 import Foundation
 
-public struct PageEpisodeItems: Equatable {
+public struct PageEpisodeModels: Equatable {
     public let info: PageInfo
-    public let results: [EpisodeItem]
+    public let results: [EpisodeModel]
 
-    public init(info: PageInfo, results: [EpisodeItem]) {
+    public init(info: PageInfo, results: [EpisodeModel]) {
         self.info = info
         self.results = results
     }
@@ -31,7 +31,7 @@ public struct PageInfo: Equatable {
     }
 }
 
-public struct EpisodeItem: Equatable {
+public struct EpisodeModel: Equatable {
     public let id: Int
     public let name: String
     public let airDate: String

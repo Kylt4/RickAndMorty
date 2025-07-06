@@ -1,5 +1,5 @@
 //
-//  CharacterItem.swift
+//  CharacterModel.swift
 //  RickAndMorty
 //
 //  Created by Christophe Bugnon on 29/06/2025.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct CharacterItem: Equatable {
+public struct CharacterModel: Equatable {
     public let id: Int
     public let name: String
     public let status: String

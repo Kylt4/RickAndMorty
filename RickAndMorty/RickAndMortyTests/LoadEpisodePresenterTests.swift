@@ -79,18 +79,19 @@ class LoadEpisodePresenterTests {
 
     private func makeSUT() -> (sut: LoadResourcePresenter<LoadEpisodeSpy, LoadEpisodeSpy>, spy: LoadEpisodeSpy) {
         let spy = LoadEpisodeSpy()
-        let sut = LoadResourcePresenter(loader: spy, delegate: spy)
+        let sut = LoadResourcePresenter(loader: spy, view: spy)
         return (sut, spy)
     }
 
     class LoadEpisodeSpy: LoadResourceDelegate, EpisodeLoader {
-        typealias Item = PageEpisodeItems
+        typealias Item = PageEpisodeModels
+        typealias PresentationModel = PageEpisodeModels
         private(set) var loadCallCount = 0
 
-        private var loadContinuation: CheckedContinuation<PageEpisodeItems, Error>?
-        private var delegateContinuation: CheckedContinuation<PageEpisodeItems, Error>?
+        private var loadContinuation: CheckedContinuation<PageEpisodeModels, Error>?
+        private var delegateContinuation: CheckedContinuation<PageEpisodeModels, Error>?
 
-        func waitForResponse() async throws -> PageEpisodeItems {
+        func waitForResponse() async throws -> PageEpisodeModels {
             return try await withCheckedThrowingContinuation { continuation in
                 delegateContinuation = continuation
             }
@@ -98,7 +99,7 @@ class LoadEpisodePresenterTests {
 
         // MARK: - Load
 
-        func load() async throws -> PageEpisodeItems {
+        func load() async throws -> PageEpisodeModels {
             return try await withCheckedThrowingContinuation { continuation in
                 loadContinuation = continuation
             }
@@ -112,7 +113,7 @@ class LoadEpisodePresenterTests {
             }
         }
 
-        func completeLoad(with item: PageEpisodeItems) {
+        func completeLoad(with item: PageEpisodeModels) {
             Task {
                 await waitForContinuation()
                 loadContinuation?.resume(returning: item)
@@ -134,7 +135,7 @@ class LoadEpisodePresenterTests {
             }
         }
 
-        func didFinishLoading(with item: PageEpisodeItems) {
+        func didFinishLoading(with item: PageEpisodeModels) {
             Task {
                 await waitForContinuation()
                 delegateContinuation?.resume(returning: item)

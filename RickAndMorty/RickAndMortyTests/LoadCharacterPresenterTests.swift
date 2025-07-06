@@ -79,18 +79,19 @@ class LoadCharacterPresenterTests {
 
     private func makeSUT() -> (sut: LoadResourcePresenter<LoadCharacterSpy, LoadCharacterSpy>, spy: LoadCharacterSpy) {
         let spy = LoadCharacterSpy()
-        let sut = LoadResourcePresenter(loader: spy, delegate: spy)
+        let sut = LoadResourcePresenter(loader: spy, view: spy)
         return (sut, spy)
     }
 
     class LoadCharacterSpy: LoadResourceDelegate, CharacterLoader {
-        typealias Item = CharacterItem
+        typealias Item = CharacterModel
+        typealias PresentationModel = CharacterModel
         private(set) var loadCallCount = 0
 
-        private var loadContinuation: CheckedContinuation<CharacterItem, Error>?
-        private var delegateContinuation: CheckedContinuation<CharacterItem, Error>?
+        private var loadContinuation: CheckedContinuation<CharacterModel, Error>?
+        private var delegateContinuation: CheckedContinuation<CharacterModel, Error>?
 
-        func waitForResponse() async throws -> CharacterItem {
+        func waitForResponse() async throws -> CharacterModel {
             return try await withCheckedThrowingContinuation { continuation in
                 delegateContinuation = continuation
             }
@@ -98,7 +99,7 @@ class LoadCharacterPresenterTests {
 
         // MARK: - Load
 
-        func load() async throws -> CharacterItem {
+        func load() async throws -> CharacterModel {
             return try await withCheckedThrowingContinuation { continuation in
                 loadContinuation = continuation
             }
@@ -112,7 +113,7 @@ class LoadCharacterPresenterTests {
             }
         }
 
-        func completeLoad(with item: CharacterItem) {
+        func completeLoad(with item: CharacterModel) {
             Task {
                 await waitForContinuation()
                 loadContinuation?.resume(returning: item)
@@ -134,7 +135,7 @@ class LoadCharacterPresenterTests {
             }
         }
 
-        func didFinishLoading(with item: CharacterItem) {
+        func didFinishLoading(with item: CharacterModel) {
             Task {
                 await waitForContinuation()
                 delegateContinuation?.resume(returning: item)

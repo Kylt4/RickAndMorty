@@ -81,7 +81,7 @@ class CharacterLoaderTests: XCTestCase {
 
     // MARK: - helpers
 
-    private func makeItem() -> (model: CharacterItem, data: Data) {
+    private func makeItem() -> (model: CharacterModel, data: Data) {
         let date = anyDate()
         let item = anyCharacterItem()
         let json: [String: Any] = [
@@ -100,7 +100,7 @@ class CharacterLoaderTests: XCTestCase {
         return (item, data)
     }
 
-    private func expect(_ sut: RemoteCharacterLoader, toCompleteWithResult expectedResult: Swift.Result<CharacterItem, RemoteLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
+    private func expect(_ sut: RemoteCharacterLoader, toCompleteWithResult expectedResult: Swift.Result<CharacterModel, RemoteLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
 
         let task = performLoadTask(from: sut)
         await action()
@@ -119,7 +119,7 @@ class CharacterLoaderTests: XCTestCase {
     }
 
     @discardableResult
-    private func performLoadTask(from sut: RemoteCharacterLoader) -> Task<CharacterItem, Error> {
+    private func performLoadTask(from sut: RemoteCharacterLoader) -> Task<CharacterModel, Error> {
         Task {
             try await sut.load()
         }

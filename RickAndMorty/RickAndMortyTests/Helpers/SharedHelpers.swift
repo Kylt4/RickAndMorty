@@ -32,20 +32,20 @@ func anyDate() -> Date {
     return Date(timeIntervalSince1970: 1751179947)
 }
 
-func anyCharacterItem() -> CharacterItem {
-    CharacterItem(id: Int.random(in: 0...Int.max), name: "any name", status: "any status", species: "any species", type: "any type", gender: "any gender", origin: LocationInfoItem(name: "any origin", url: anyURL()), location: LocationInfoItem(name: "any location", url: anyURL()), image: anyURL(), created: anyDate())
+func anyCharacterItem() -> CharacterModel {
+    CharacterModel(id: Int.random(in: 0...Int.max), name: "any name", status: "any status", species: "any species", type: "any type", gender: "any gender", origin: LocationInfoItem(name: "any origin", url: anyURL()), location: LocationInfoItem(name: "any location", url: anyURL()), image: anyURL(), created: anyDate())
 }
 
-func anyEpisodeItem() -> EpisodeItem {
-    EpisodeItem(id: Int.random(in: 0...Int.max), name: "any name", airDate: "any air date", episode: "any episode", episodeURL: anyURL(), created: anyDate(), characters: [anyURL()])
+func anyEpisodeItem() -> EpisodeModel {
+    EpisodeModel(id: Int.random(in: 0...Int.max), name: "any name", airDate: "any air date", episode: "any episode", episodeURL: anyURL(), created: anyDate(), characters: [anyURL()])
 }
 
 func pageInfo(prev: URL?, next: URL?) -> PageInfo {
     PageInfo(count: Int.random(in: 0...Int.max), pages: Int.random(in: 0...Int.max), prev: prev, next: next)
 }
 
-func anyPageEpisodeItems() -> PageEpisodeItems {
-    return PageEpisodeItems(info: pageInfo(prev: nil, next: nil), results: [anyEpisodeItem()])
+func anyPageEpisodeItems() -> PageEpisodeModels {
+    return PageEpisodeModels(info: pageInfo(prev: nil, next: nil), results: [anyEpisodeItem()])
 }
 
 func waitForCompletions() async {

@@ -7,28 +7,29 @@
 
 import Foundation
 
-public protocol LoadResourceDelegate {
-    associatedtype Item
-
-    func didStartLoading()
-    func didFinishLoading(with error: Error)
-    func didFinishLoading(with item: Item)
-}
-
-public final class LoadResourcePresenter<L: Loader, Delegate: LoadResourceDelegate> where L.Item == Delegate.Item {
+public final class LoadResourcePresenter<L: Loader, View: LoadResourceDelegate> {
     private let loader: L
-    private let delegate: Delegate
+    private let view: View
+    private let mapper: (L.Item) throws -> View.PresentationModel
+
     private var isLoading = false
 
-    public init(loader: L, delegate: Delegate) {
+    public init(loader: L, view: View, mapper: @escaping (L.Item) throws -> View.PresentationModel) {
         self.loader = loader
-        self.delegate = delegate
+        self.view = view
+        self.mapper = mapper
+    }
+
+    public init(loader: L, view: View) where L.Item == View.PresentationModel {
+        self.loader = loader
+        self.view = view
+        self.mapper = { $0 }
     }
 
     public func load() {
         guard !isLoading else { return }
 
-        delegate.didStartLoading()
+        view.didStartLoading()
         isLoading = true
 
         Task {
@@ -36,9 +37,9 @@ public final class LoadResourcePresenter<L: Loader, Delegate: LoadResourceDelega
 
             do {
                 let item = try await loader.load()
-                delegate.didFinishLoading(with: item)
+                view.didFinishLoading(with: try mapper(item))
             } catch {
-                delegate.didFinishLoading(with: error)
+                view.didFinishLoading(with: error)
             }
         }
     }

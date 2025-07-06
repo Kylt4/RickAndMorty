@@ -8,13 +8,13 @@
 import Foundation
 
 public final class RemoteCharacterLoader: CharacterLoader {
-    private let loader: RemoteLoader<CharacterItem>
+    private let loader: RemoteLoader<CharacterModel>
 
     public init(url: URL, client: HTTPClient) {
         self.loader = RemoteLoader(url: url, client: client, mapper: RemoteCharacterItemMapper.map(_:))
     }
 
-    public func load() async throws -> CharacterItem {
+    public func load() async throws -> CharacterModel {
         try await loader.load()
     }
 }

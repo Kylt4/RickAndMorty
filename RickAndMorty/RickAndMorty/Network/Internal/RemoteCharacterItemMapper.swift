@@ -8,7 +8,7 @@
 import Foundation
 
 final class RemoteCharacterItemMapper {
-    static func map(_ data: Data) throws -> CharacterItem {
+    static func map(_ data: Data) throws -> CharacterModel {
         let item = try JSONDecoder().decode(RemoteCharacter.self, from: data)
         return item.toApp
     }
@@ -27,8 +27,8 @@ final class RemoteCharacterItemMapper {
         let image: URL
         let created: Date
 
-        var toApp: CharacterItem {
-            return CharacterItem(
+        var toApp: CharacterModel {
+            return CharacterModel(
                 id: id,
                 name: name,
                 status: status,

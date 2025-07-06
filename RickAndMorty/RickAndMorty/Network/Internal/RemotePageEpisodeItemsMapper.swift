@@ -8,7 +8,7 @@
 import Foundation
 
 final class RemotePageEpisodeItemsMapper {
-    static func map(_ data: Data) throws -> PageEpisodeItems {
+    static func map(_ data: Data) throws -> PageEpisodeModels {
         let item = try JSONDecoder().decode(RemotePageEpisodeItems.self, from: data)
         return item.toApp
     }
@@ -19,14 +19,14 @@ final class RemotePageEpisodeItemsMapper {
         let info: RemotePageInfo
         let results: [RemoteEpisodeItem]
 
-        var toApp: PageEpisodeItems {
-            return PageEpisodeItems(
+        var toApp: PageEpisodeModels {
+            return PageEpisodeModels(
                 info: PageInfo(count: info.count,
                                pages: info.pages,
                                prev: info.prev,
                                next: info.next),
                 results: results.map { item in
-                    EpisodeItem(id: item.id,
+                    EpisodeModel(id: item.id,
                                 name: item.name,
                                 airDate: item.airDate,
                                 episode: item.episode,

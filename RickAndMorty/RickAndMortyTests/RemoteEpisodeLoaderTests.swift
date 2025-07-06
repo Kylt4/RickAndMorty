@@ -89,11 +89,11 @@ class RemoteEpisodeLoaderTests: XCTestCase {
 
     // MARK: - helpers
 
-    private func makeItems(prev: URL?, next: URL?) -> (model: PageEpisodeItems, data: Data) {
+    private func makeItems(prev: URL?, next: URL?) -> (model: PageEpisodeModels, data: Data) {
         let date = anyDate()
         let pageInfo = pageInfo(prev: prev, next: next)
         let item = anyEpisodeItem()
-        let page = PageEpisodeItems(info: pageInfo, results: [item])
+        let page = PageEpisodeModels(info: pageInfo, results: [item])
 
         let infoJSON: [String: Any?] = [
             "count": pageInfo.count,
@@ -119,7 +119,7 @@ class RemoteEpisodeLoaderTests: XCTestCase {
         return (page, data)
     }
 
-    private func expect(_ sut: RemoteEpisodeLoader, toCompleteWithResult expectedResult: Swift.Result<PageEpisodeItems, RemoteLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
+    private func expect(_ sut: RemoteEpisodeLoader, toCompleteWithResult expectedResult: Swift.Result<PageEpisodeModels, RemoteLoaderError>, when action: () async -> Void, file: StaticString = #filePath, line: UInt = #line) async {
 
         let task = performLoadTask(from: sut)
         await action()
@@ -138,7 +138,7 @@ class RemoteEpisodeLoaderTests: XCTestCase {
     }
 
     @discardableResult
-    private func performLoadTask(from sut: RemoteEpisodeLoader) -> Task<PageEpisodeItems, Error> {
+    private func performLoadTask(from sut: RemoteEpisodeLoader) -> Task<PageEpisodeModels, Error> {
         Task {
             try await sut.load()
         }

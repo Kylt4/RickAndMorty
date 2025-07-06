@@ -95,24 +95,26 @@ class LoadCharacterViewModelTests {
 
     // MARK: - Helpers
 
-    private func makeSUT() -> (sut: LoadResourceViewModel<LoadSpy, LoadSpy>, spy: LoadSpy) {
-        let spy = LoadSpy()
+    private func makeSUT() -> (sut: LoadResourceViewModel<LoadCharacterSpy, LoadCharacterSpy>, spy: LoadCharacterSpy) {
+        let spy = LoadCharacterSpy()
         let sut = LoadResourceViewModel(loader: spy, delegate: spy)
         return (sut, spy)
     }
 
-    class LoadSpy: LoadResourceDelegate, CharacterLoader {
-        typealias Item = CharacterItem
+    class LoadCharacterSpy: LoadResourceDelegate, CharacterLoader {
+        typealias Item = CharacterModel
+        typealias PresentationModel = CharacterModel
+        
         private(set) var loadCallCount = 0
         private(set) var receivedItem: Item?
         private(set) var receivedError: Error?
         private(set) var isOnMainThread: Bool?
 
-        private var loadContinuation: CheckedContinuation<CharacterItem, Error>?
+        private var loadContinuation: CheckedContinuation<CharacterModel, Error>?
 
         // MARK: - Load
 
-        func load() async throws -> CharacterItem {
+        func load() async throws -> CharacterModel {
             return try await withCheckedThrowingContinuation { continuation in
                 loadContinuation = continuation
             }
@@ -126,7 +128,7 @@ class LoadCharacterViewModelTests {
             }
         }
 
-        func completeLoad(with item: CharacterItem) {
+        func completeLoad(with item: CharacterModel) {
             Task {
                 await waitForContinuation()
                 loadContinuation?.resume(returning: item)
@@ -146,7 +148,7 @@ class LoadCharacterViewModelTests {
             receivedError = error
         }
 
-        func didFinishLoading(with item: CharacterItem) {
+        func didFinishLoading(with item: CharacterModel) {
             isOnMainThread = Thread.isMainThread
             receivedItem = item
         }

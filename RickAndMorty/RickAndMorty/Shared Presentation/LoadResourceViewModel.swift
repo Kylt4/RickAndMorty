@@ -8,23 +8,32 @@
 import Foundation
 
 @Observable
-public final class LoadResourceViewModel<L: Loader, Delegate: LoadResourceDelegate> where L.Item == Delegate.Item {
+public final class LoadResourceViewModel<L: Loader, Delegate: LoadResourceDelegate> {
     private let loader: L
     private let delegate: Delegate
+    private let mapper: (L.Item) throws -> Delegate.PresentationModel
 
     public var isLoading = false
-    public var item: L.Item?
+    public var item: Delegate.PresentationModel?
     public var error: Error?
 
-    public init(loader: L, delegate: Delegate) {
+    public init(loader: L, delegate: Delegate, mapper: @escaping (L.Item) throws -> Delegate.PresentationModel) {
         self.loader = loader
         self.delegate = delegate
+        self.mapper = mapper
+    }
+
+    public init(loader: L, delegate: Delegate) where L.Item == Delegate.PresentationModel {
+        self.loader = loader
+        self.delegate = delegate
+        self.mapper = { $0 }
     }
 
     @MainActor
     public func load() async {
         guard !isLoading else { return }
         let delegate = delegate
+        let mapper = mapper
         Task.detached {
             delegate.didStartLoading()
         }
@@ -34,7 +43,7 @@ public final class LoadResourceViewModel<L: Loader, Delegate: LoadResourceDelega
         error = nil
 
         do {
-            let item = try await loader.load()
+            let item = try mapper(await loader.load())
             self.item = item
             Task.detached {
                 delegate.didFinishLoading(with: item)

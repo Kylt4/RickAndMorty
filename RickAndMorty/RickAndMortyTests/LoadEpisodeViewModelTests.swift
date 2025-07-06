@@ -95,24 +95,25 @@ class LoadEpisodeViewModelTests {
 
     // MARK: - Helpers
 
-    private func makeSUT() -> (sut: LoadResourceViewModel<LoadSpy, LoadSpy>, spy: LoadSpy) {
-        let spy = LoadSpy()
+    private func makeSUT() -> (sut: LoadResourceViewModel<LoadCharacterSpy, LoadCharacterSpy>, spy: LoadCharacterSpy) {
+        let spy = LoadCharacterSpy()
         let sut = LoadResourceViewModel(loader: spy, delegate: spy)
         return (sut, spy)
     }
 
-    class LoadSpy: LoadResourceDelegate, EpisodeLoader {
-        typealias Item = PageEpisodeItems
+    class LoadCharacterSpy: LoadResourceDelegate, EpisodeLoader {
+        typealias Item = PageEpisodeModels
+        typealias PresentationModel = PageEpisodeModels
         private(set) var loadCallCount = 0
         private(set) var receivedItem: Item?
         private(set) var receivedError: Error?
         private(set) var isOnMainThread: Bool?
 
-        private var loadContinuation: CheckedContinuation<PageEpisodeItems, Error>?
+        private var loadContinuation: CheckedContinuation<PageEpisodeModels, Error>?
 
         // MARK: - Load
 
-        func load() async throws -> PageEpisodeItems {
+        func load() async throws -> PageEpisodeModels {
             return try await withCheckedThrowingContinuation { continuation in
                 loadContinuation = continuation
             }
@@ -126,7 +127,7 @@ class LoadEpisodeViewModelTests {
             }
         }
 
-        func completeLoad(with item: PageEpisodeItems) {
+        func completeLoad(with item: PageEpisodeModels) {
             Task {
                 await waitForContinuation()
                 loadContinuation?.resume(returning: item)
@@ -146,7 +147,7 @@ class LoadEpisodeViewModelTests {
             receivedError = error
         }
 
-        func didFinishLoading(with item: PageEpisodeItems) {
+        func didFinishLoading(with item: PageEpisodeModels) {
             isOnMainThread = Thread.isMainThread
             receivedItem = item
         }

@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol EpisodeLoader: Loader {
-    func load() async throws -> PageEpisodeItems
+    func load() async throws -> PageEpisodeModels
 }

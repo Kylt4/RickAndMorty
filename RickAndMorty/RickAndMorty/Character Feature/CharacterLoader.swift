@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol CharacterLoader: Loader {
-    func load() async throws -> CharacterItem
+    func load() async throws -> CharacterModel
 }
