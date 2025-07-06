@@ -1,24 +1,24 @@
 //
-//  LoadEpisodePresenterTests.swift
+//  LoadResourcePresentationPresenterTests.swift
 //  RickAndMortyTests
 //
-//  Created by Christophe Bugnon on 02/07/2025.
+//  Created by Christophe Bugnon on 05/07/2025.
 //
 
 import RickAndMorty
 import Foundation
 import Testing
 
-class LoadEpisodePresenterTests {
+class LoadResourcePresentationPresenterTests {
     @Test
-    func test_init_doesNotRequestLoadEpisode() {
+    func test_init_doesNotRequestLoadCharacter() {
         let (_, spy) = makeSUT()
 
         #expect(spy.loadCallCount == 0)
     }
 
     @Test
-    func test_loadEpisodes_requestLoadFromLoader() async {
+    func test_loadCharacter_requestLoadFromLoader() async {
         let (sut, spy) = makeSUT()
 
         sut.load()
@@ -28,7 +28,7 @@ class LoadEpisodePresenterTests {
     }
 
     @Test
-    func test_loadEpisodes_canLoadAnotherRequestAfterTheLastOneIsFinished() async {
+    func test_loadCharacter_canLoadAnotherRequestAfterTheLastOneIsFinished() async {
         let (sut, spy) = makeSUT()
 
         sut.load()
@@ -42,7 +42,7 @@ class LoadEpisodePresenterTests {
     }
 
     @Test
-    func test_loadEpisodes_cannotLoadAnotherResourceWhileTheCurrentIsRunning() async {
+    func test_loadCharacter_cannotLoadAnotherResourceWhileTheCurrentIsRunning() async {
         let (sut, spy) = makeSUT()
 
         sut.load()
@@ -52,7 +52,7 @@ class LoadEpisodePresenterTests {
     }
 
     @Test
-    func test_loadEpisodes_deliversErrorOnFailure() async {
+    func test_loadCharacter_deliversErrorOnFailure() async {
         let (sut, spy) = makeSUT()
         let error = anyNSError()
 
@@ -64,10 +64,10 @@ class LoadEpisodePresenterTests {
     }
 
     @Test
-    func test_loadEpisodes_deliversItemOnSuccess() async {
+    func test_loadCharacter_deliversItemOnSuccess() async {
         let (sut, spy) = makeSUT()
-        let item = anyPageEpisodeItems()
-
+        let item = anyCharacterItem()
+        
         sut.load()
         spy.completeLoad(with: item)
 
@@ -77,21 +77,21 @@ class LoadEpisodePresenterTests {
 
     // MARK: - Helpers
 
-    private func makeSUT() -> (sut: LoadResourcePresenter<LoadEpisodeSpy, LoadEpisodeSpy>, spy: LoadEpisodeSpy) {
-        let spy = LoadEpisodeSpy()
-        let sut = LoadResourcePresenter(loader: spy, view: spy)
+    private func makeSUT() -> (sut: LoadResourcePresentationAdapter<LoadDelegateSpy, LoadDelegateSpy>, spy: LoadDelegateSpy) {
+        let spy = LoadDelegateSpy()
+        let sut = LoadResourcePresentationAdapter(loader: spy, delegate: spy)
         return (sut, spy)
     }
 
-    class LoadEpisodeSpy: LoadResourceDelegate, EpisodeLoader {
-        typealias Item = PageEpisodeModels
-        typealias PresentationModel = PageEpisodeModels
+    class LoadDelegateSpy: LoadResourceDelegate, CharacterLoader {
+        typealias Item = CharacterModel
+        typealias PresentationModel = CharacterModel
         private(set) var loadCallCount = 0
 
-        private var loadContinuation: CheckedContinuation<PageEpisodeModels, Error>?
-        private var delegateContinuation: CheckedContinuation<PageEpisodeModels, Error>?
+        private var loadContinuation: CheckedContinuation<CharacterModel, Error>?
+        private var delegateContinuation: CheckedContinuation<CharacterModel, Error>?
 
-        func waitForResponse() async throws -> PageEpisodeModels {
+        func waitForResponse() async throws -> CharacterModel {
             return try await withCheckedThrowingContinuation { continuation in
                 delegateContinuation = continuation
             }
@@ -99,7 +99,7 @@ class LoadEpisodePresenterTests {
 
         // MARK: - Load
 
-        func load() async throws -> PageEpisodeModels {
+        func load() async throws -> CharacterModel {
             return try await withCheckedThrowingContinuation { continuation in
                 loadContinuation = continuation
             }
@@ -113,7 +113,7 @@ class LoadEpisodePresenterTests {
             }
         }
 
-        func completeLoad(with item: PageEpisodeModels) {
+        func completeLoad(with item: CharacterModel) {
             Task {
                 await waitForContinuation()
                 loadContinuation?.resume(returning: item)
@@ -135,7 +135,7 @@ class LoadEpisodePresenterTests {
             }
         }
 
-        func didFinishLoading(with item: PageEpisodeModels) {
+        func didFinishLoading(with item: CharacterModel) {
             Task {
                 await waitForContinuation()
                 delegateContinuation?.resume(returning: item)
