@@ -7,4 +7,4 @@
 
 # [Image Features Specs](./ImageFeaturesSpecs.md)
 
-# [Presenter VS ViewModel](/.PresenterVSViewModelSpecs.md)
+# [Presenter VS ViewModel](./PresenterVSViewModelSpecs.md)
