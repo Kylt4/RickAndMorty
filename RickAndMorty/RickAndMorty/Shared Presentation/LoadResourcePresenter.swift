@@ -15,7 +15,9 @@ public protocol ResourceView {
     func display(presentationModel: ResourcePresentationModel)
 }
 
-public final class LoadResourcePresenter<Resource, View: ResourceView> {
+public final class LoadResourcePresenter<Resource, View: ResourceView>: LoadResourceDelegate {
+    public typealias Item = Resource
+    
     private let view: View
     private let mapper: (Resource) throws -> View.ResourcePresentationModel
 

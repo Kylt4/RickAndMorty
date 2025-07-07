@@ -8,7 +8,9 @@
 import Foundation
 
 @Observable
-final public class LoadResourceViewModel<Resource, PresentationModel> {
+final public class LoadResourceViewModel<Resource, PresentationModel>: LoadResourceDelegate {
+    public typealias Item = Resource
+    
     public var isLoading = false
     public var errorMessage: String? = nil
     public var item: PresentationModel? = nil

@@ -7,14 +7,6 @@
 
 import Foundation
 
-public protocol LoadResourceDelegate {
-    associatedtype Item
-
-    func didStartLoading()
-    func didFinishLoading(with error: Error)
-    func didFinishLoading(with item: Item)
-}
-
 public final class LoadResourcePresentationAdapter<L: Loader, Delegate: LoadResourceDelegate> where L.Item == Delegate.Item {
     private let loader: L
     private let delegate: Delegate
