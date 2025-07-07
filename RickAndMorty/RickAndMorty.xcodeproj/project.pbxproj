@@ -25,23 +25,9 @@
 		463517C82E1007BD00778E71 /* RickAndMortyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RickAndMortyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		462449DF2E1AB117004B8722 /* Exceptions for "RickAndMorty" folder in "RickAndMortyTests" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Shared Presentation/LoadResourcePresenter.swift",
-				"Shared Presentation/Shared.xcstrings",
-			);
-			target = 463517C72E1007BD00778E71 /* RickAndMortyTests */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		463517C12E1007BC00778E71 /* RickAndMorty */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				462449DF2E1AB117004B8722 /* Exceptions for "RickAndMorty" folder in "RickAndMortyTests" target */,
-			);
 			path = RickAndMorty;
 			sourceTree = "<group>";
 		};
@@ -368,7 +354,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
+				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = 9SJF823VHD;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -404,7 +390,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
-				DEFINES_MODULE = YES;
+				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = 9SJF823VHD;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;

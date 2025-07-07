@@ -15,27 +15,21 @@ public protocol ResourceView {
     func display(presentationModel: ResourcePresentationModel)
 }
 
-final class LoadResourcePresenter<Resource, View: ResourceView> {
+public final class LoadResourcePresenter<Resource, View: ResourceView> {
     private let view: View
     private let mapper: (Resource) throws -> View.ResourcePresentationModel
 
-    private var loadError: String {
-        String(localized: "GENERIC_CONNECTION_ERROR",
-               table: "Shared",
-               bundle: Bundle(for: LoadResourcePresenter.self))
-    }
-
-    init(view: View, mapper: @escaping (Resource) throws -> View.ResourcePresentationModel) {
+    public init(view: View, mapper: @escaping (Resource) throws -> View.ResourcePresentationModel) {
         self.view = view
         self.mapper = mapper
     }
 
-    func didStartLoading() {
+    public func didStartLoading() {
         view.display(errorMessage: nil)
         view.display(isLoading: true)
     }
 
-    func didFinishLoading(with resource: Resource) {
+    public func didFinishLoading(with resource: Resource) {
         do {
             view.display(presentationModel: try mapper(resource))
             view.display(isLoading: false)
@@ -44,8 +38,8 @@ final class LoadResourcePresenter<Resource, View: ResourceView> {
         }
     }
 
-    func didFinishLoading(with error: Error) {
-        view.display(errorMessage: loadError)
+    public func didFinishLoading(with error: Error) {
+        view.display(errorMessage: SharedStringsHelper.loadError)
         view.display(isLoading: false)
     }
 }

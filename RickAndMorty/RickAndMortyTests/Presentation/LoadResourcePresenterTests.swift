@@ -97,7 +97,7 @@ class LoadResourcePresenterTests {
             case display(isLoading: Bool)
             case display(presentationModel: String)
         }
-
+        
         private(set) var messages = [Message]()
 
         func display(errorMessage: String?) {
