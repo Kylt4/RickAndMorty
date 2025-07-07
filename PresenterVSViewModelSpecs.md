@@ -84,4 +84,105 @@
 | **LoadResourcePresenter** | - Simple and easy to understand<br>- Delegates threading to caller (less internal complexity)<br>- Clear separation of loading and mapping via delegate | - No explicit UI state management<br>- SRP violated by mixing loading & mapping |
 | **LoadResourceViewModel** | - Exposes observable state for UI binding<br>- Internal threading to avoid blocking main thread<br>- Handles errors and loading state internally<br>- Requires explicit mapping layer despite abstraction in presenter | - More complex and harder to maintain<br>- SRP violated by mixing multiple concerns<br>- Threading logic coupled with loading and mapping |
 
-![diagram-presenter-viewmodel.pdf](diagram-presenter-viewmodel.pdf)
+# Diagram:
+![Diagram](diagram-presenter-viewmodel.png)
+
+
+# [Project GitHub here](https://github.com/Kylt4/RickAndMorty/tree/classic)
+
+```swift
+public protocol LoadResourceDelegate {
+    associatedtype PresentationModel
+
+    func didStartLoading()
+    func didFinishLoading(with error: Error)
+    func didFinishLoading(with item: PresentationModel)
+}
+```
+
+```swift
+public final class LoadResourcePresenter<L: Loader, View: LoadResourceDelegate> {
+    private let loader: L
+    private let view: View
+    private let mapper: (L.Item) throws -> View.PresentationModel
+
+    private var isLoading = false
+
+    public init(loader: L, view: View, mapper: @escaping (L.Item) throws -> View.PresentationModel) {
+        self.loader = loader
+        self.view = view
+        self.mapper = mapper
+    }
+
+    public init(loader: L, view: View) where L.Item == View.PresentationModel {
+        self.loader = loader
+        self.view = view
+        self.mapper = { $0 }
+    }
+
+    public func load() {
+        guard !isLoading else { return }
+
+        view.didStartLoading()
+        isLoading = true
+
+        Task {
+            defer { isLoading = false }
+
+            do {
+                let item = try await loader.load()
+                view.didFinishLoading(with: try mapper(item))
+            } catch {
+                view.didFinishLoading(with: error)
+            }
+        }
+    }
+}
+```
+
+```swift
+@Observable
+public final class LoadResourceViewModel<L: Loader, Delegate: LoadResourceDelegate> {
+    private let loader: L
+    private let delegate: Delegate
+    private let mapper: (L.Item) throws -> Delegate.PresentationModel
+
+    public var isLoading = false
+    public var item: Delegate.PresentationModel?
+    public var error: Error?
+
+    public init(loader: L, delegate: Delegate, mapper: @escaping (L.Item) throws -> Delegate.PresentationModel) {
+        self.loader = loader
+        self.delegate = delegate
+        self.mapper = mapper
+    }
+
+    public init(loader: L, delegate: Delegate) where L.Item == Delegate.PresentationModel {
+        self.loader = loader
+        self.delegate = delegate
+        self.mapper = { $0 }
+    }
+
+    @MainActor
+    public func load() async {
+        guard !isLoading else { return }
+        defer { isLoading = false }
+
+        let delegate = delegate
+        let mapper = mapper
+        
+        Task.detached { delegate.didStartLoading() }
+        isLoading = true
+        error = nil
+
+        do {
+            let item = try mapper(await loader.load())
+            self.item = item
+            Task.detached { delegate.didFinishLoading(with: item) }
+        } catch let receivedError {
+            error = receivedError
+            Task.detached { delegate.didFinishLoading(with: receivedError) }
+        }
+    }
+}
+```
