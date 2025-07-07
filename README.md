@@ -8,3 +8,5 @@
 # [Image Features Specs](./ImageFeaturesSpecs.md)
 
 # [Presenter VS ViewModel](./PresenterVSViewModelSpecs.md)
+
+# [Modular Presenter ViewModel with Adapter](./ModularAdapterPresenterViewModel.md)
