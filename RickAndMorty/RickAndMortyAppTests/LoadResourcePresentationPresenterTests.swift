@@ -1,13 +1,14 @@
 //
 //  LoadResourcePresentationPresenterTests.swift
-//  RickAndMortyTests
+//  RickAndMortyAppTests
 //
-//  Created by Christophe Bugnon on 05/07/2025.
+//  Created by Christophe Bugnon on 10/07/2025.
 //
 
-import RickAndMorty
 import Foundation
 import Testing
+import RickAndMorty
+import RickAndMortyApp
 
 class LoadResourcePresentationPresenterTests {
     @Test
@@ -66,8 +67,8 @@ class LoadResourcePresentationPresenterTests {
     @Test
     func test_loadCharacter_deliversItemOnSuccess() async {
         let (sut, spy) = makeSUT()
-        let item = anyCharacterItem()
-        
+        let item = "Any string"
+
         sut.load()
         spy.completeLoad(with: item)
 
@@ -83,15 +84,15 @@ class LoadResourcePresentationPresenterTests {
         return (sut, spy)
     }
 
-    class LoadDelegateSpy: LoadResourceDelegate, CharacterLoader {
-        typealias Item = CharacterModel
-        typealias PresentationModel = CharacterModel
+    class LoadDelegateSpy: LoadResourceDelegate, Loader {
+        typealias Item = String
+        typealias PresentationModel = String
         private(set) var loadCallCount = 0
 
-        private var loadContinuation: CheckedContinuation<CharacterModel, Error>?
-        private var delegateContinuation: CheckedContinuation<CharacterModel, Error>?
+        private var loadContinuation: CheckedContinuation<String, Error>?
+        private var delegateContinuation: CheckedContinuation<String, Error>?
 
-        func waitForResponse() async throws -> CharacterModel {
+        func waitForResponse() async throws -> String {
             return try await withCheckedThrowingContinuation { continuation in
                 delegateContinuation = continuation
             }
@@ -99,7 +100,7 @@ class LoadResourcePresentationPresenterTests {
 
         // MARK: - Load
 
-        func load() async throws -> CharacterModel {
+        func load() async throws -> String {
             return try await withCheckedThrowingContinuation { continuation in
                 loadContinuation = continuation
             }
@@ -113,7 +114,7 @@ class LoadResourcePresentationPresenterTests {
             }
         }
 
-        func completeLoad(with item: CharacterModel) {
+        func completeLoad(with item: String) {
             Task {
                 await waitForContinuation()
                 loadContinuation?.resume(returning: item)
@@ -135,7 +136,7 @@ class LoadResourcePresentationPresenterTests {
             }
         }
 
-        func didFinishLoading(with item: CharacterModel) {
+        func didFinishLoading(with item: String) {
             Task {
                 await waitForContinuation()
                 delegateContinuation?.resume(returning: item)
@@ -143,4 +144,12 @@ class LoadResourcePresentationPresenterTests {
             }
         }
     }
+}
+
+private func anyNSError() -> NSError {
+    NSError(domain: "any error", code: 0)
+}
+
+private func waitForContinuation() async {
+    try? await Task.sleep(for: .milliseconds(1))
 }

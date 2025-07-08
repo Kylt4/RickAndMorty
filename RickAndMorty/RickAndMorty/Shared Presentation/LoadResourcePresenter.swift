@@ -26,6 +26,11 @@ public final class LoadResourcePresenter<Resource, View: ResourceView>: LoadReso
         self.mapper = mapper
     }
 
+    public init(view: View) where Resource == View.ResourcePresentationModel {
+        self.view = view
+        self.mapper = { $0 }
+    }
+
     public func didStartLoading() {
         view.display(errorMessage: nil)
         view.display(isLoading: true)

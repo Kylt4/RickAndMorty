@@ -60,6 +60,12 @@ final class RemoteCharacterItemMapper {
 
     private struct RemoteLocationInfo: Codable {
         let name: String
-        let url: URL
+        let url: URL?
+
+        init(from decoder: any Decoder) throws {
+            let container: KeyedDecodingContainer<RemoteCharacterItemMapper.RemoteLocationInfo.CodingKeys> = try decoder.container(keyedBy: RemoteCharacterItemMapper.RemoteLocationInfo.CodingKeys.self)
+            self.name = try container.decode(String.self, forKey: RemoteCharacterItemMapper.RemoteLocationInfo.CodingKeys.name)
+            self.url = try? container.decodeIfPresent(URL.self, forKey: RemoteCharacterItemMapper.RemoteLocationInfo.CodingKeys.url)
+        }
     }
 }

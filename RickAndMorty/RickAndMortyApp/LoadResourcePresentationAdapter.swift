@@ -6,6 +6,8 @@
 //
 
 import Foundation
+import RickAndMorty
+import RickAndMortyiOS
 
 public final class LoadResourcePresentationAdapter<L: Loader, Delegate: LoadResourceDelegate> where L.Item == Delegate.Item {
     private let loader: L

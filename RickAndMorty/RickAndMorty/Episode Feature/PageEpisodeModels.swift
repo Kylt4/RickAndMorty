@@ -40,7 +40,6 @@ public struct EpisodeModel: Equatable {
     public let created: Date
     public let characters: [URL]
 
-
     public init(id: Int, name: String, airDate: String, episode: String, episodeURL: URL, created: Date, characters: [URL]) {
         self.id = id
         self.name = name

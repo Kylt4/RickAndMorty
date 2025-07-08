@@ -18,7 +18,7 @@ public extension Date {
 
     private static var isoFormatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withTimeZone]
+        formatter.formatOptions = [.withInternetDateTime, .withTimeZone, .withFractionalSeconds]
         formatter.timeZone = .current
         return formatter
     }()

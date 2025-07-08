@@ -91,8 +91,8 @@ class CharacterLoaderTests: XCTestCase {
             "species": item.species,
             "type": item.type,
             "gender": item.gender,
-            "origin": ["name": item.origin.name, "url": item.origin.url.absoluteString],
-            "location": ["name": item.location.name, "url": item.location.url.absoluteString],
+            "origin": ["name": item.origin.name, "url": item.origin.url?.absoluteString],
+            "location": ["name": item.location.name, "url": item.location.url?.absoluteString],
             "image": item.image.absoluteString,
             "created": date.iso8601
         ]
