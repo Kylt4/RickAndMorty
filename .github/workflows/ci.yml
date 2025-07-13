@@ -1,0 +1,46 @@
+name: CI RickAndMorty
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-test:
+    runs-on: macos-latest
+    env:
+      IDEFileSystemSynchronizedGroupsAreEnabled: NO
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Installer dépendances ici si besoin (CocoaPods, SwiftPM, etc.)
+    - name: Install dependencies
+      run: |
+        # Exemple : pod install si tu utilises CocoaPods
+        # pod install
+
+    - name: Clean Derived Data
+      run: rm -rf ~/Library/Developer/Xcode/DerivedData/*
+
+    # Suppression de la commande clean pour éviter le crash
+
+    - name: Build and Test
+      run: |
+        xcodebuild test \
+          -project RickAndMorty/RickAndMorty.xcodeproj \
+          -scheme RickAndMorty \
+          -destination 'platform=macOS' \
+          ONLY_ACTIVE_ARCH=YES \
+          ENABLE_CODE_COVERAGE=YES
+
+    # - name: Upload code coverage (optional)
+    #   if: success()
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: code-coverage
+    #     path: ./path/to/coverage/output  # adapte ce chemin selon ton projet
