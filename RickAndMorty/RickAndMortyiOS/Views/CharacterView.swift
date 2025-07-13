@@ -33,6 +33,7 @@ public struct CharacterView: View {
 
                     Text(item.name)
                         .font(.title2).bold()
+                        .lineLimit(1)
 
                     VStack(alignment: .leading) {
                         Text(item.status)

@@ -30,9 +30,10 @@ class EpisodesViewBuilder {
             url: URL(string: "https://rickandmortyapi.com/api/episode")!,
             client: client
         ))
+
         let adapter = LoadResourcePresentationAdapter(
             loader: loader,
-            delegate: viewModel
+            delegate: makeComposer(viewModel: viewModel)
         )
 
         return EpisodesView(
@@ -52,61 +53,13 @@ class EpisodesViewBuilder {
             ))
             let adapter = LoadResourcePresentationAdapter(
                 loader: loader,
-                delegate: PaginatedEpisodeLoaderDelegate(viewModel: viewModel, oldItem: oldItem)
+                delegate: makeComposer(viewModel: PaginatedEpisodeLoaderDelegate(viewModel: viewModel, oldItem: oldItem))
             )
             adapter.load()
         }
     }
-}
 
-fileprivate class PaginatedEpisodeLoaderDelegate: LoadResourceDelegate {
-    typealias Item = PageEpisodeModels
-    var viewModel: EpisodesViewModel
-    var oldItem: PageEpisodeModels
-
-    init(viewModel: EpisodesViewModel, oldItem: PageEpisodeModels) {
-        self.viewModel = viewModel
-        self.oldItem = oldItem
-    }
-
-    func didStartLoading() {}
-
-    func didFinishLoading(with item: PageEpisodeModels) {
-        viewModel.didFinishLoading(
-            with: PageEpisodeModels(info: item.info,
-                                    results: oldItem.results + item.results)
-        )
-    }
-
-    func didFinishLoading(with error: any Error) {}
-}
-
-private class RemoteEpisodeLoaderWithShuffledCharacters: EpisodeLoader {
-    public typealias Item = PageEpisodeModels
-
-    private let decoratee: RemoteEpisodeLoader
-
-    public init(decoratee: RemoteEpisodeLoader) {
-        self.decoratee = decoratee
-    }
-
-    public func load() async throws -> PageEpisodeModels {
-        let item = try await decoratee.load()
-        return PageEpisodeModels(info: item.info,
-                                 results: item.results.charactersShuffled)
-    }
-}
-
-extension Array where Element == EpisodeModel {
-    var charactersShuffled: [EpisodeModel] {
-        return map {
-            EpisodeModel(id: $0.id,
-                         name: $0.name,
-                         airDate: $0.airDate,
-                         episode: $0.episode,
-                         episodeURL: $0.episodeURL,
-                         created: $0.created,
-                         characters: $0.characters.shuffled())
-        }
+    private static func makeComposer(viewModel: any LoadEpisodeDelegate) -> EpisodeResourceDelegateComposer {
+        return EpisodeResourceDelegateComposer(delegates: [AnalyticsTracker(), FirebaseTracker(), viewModel])
     }
 }
