@@ -1,0 +1,61 @@
+name: Build and Test RickAndMorty
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  macos-engine:
+    name: 🖥️ MacOS Engine
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Check Xcode version
+        run: xcodebuild -version
+
+      - name: Clean DerivedData
+        run: rm -rf ~/Library/Developer/Xcode/DerivedData
+
+      - name: Clean project
+        run: xcodebuild clean -project RickAndMorty/RickAndMorty.xcodeproj -scheme RickAndMorty
+
+      - name: Run macOS tests
+        run: |
+          xcodebuild test \
+            -project RickAndMorty/RickAndMorty.xcodeproj \
+            -scheme RickAndMorty \
+            -destination 'platform=macOS' \
+            ONLY_ACTIVE_ARCH=YES
+
+  ios-app:
+    name: 📱 iOS App
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Check Xcode version
+        run: xcodebuild -version
+
+      - name: Clean DerivedData
+        run: rm -rf ~/Library/Developer/Xcode/DerivedData
+
+      - name: Clean project
+        run: xcodebuild clean -project RickAndMorty/RickAndMorty.xcodeproj -scheme RickAndMortyApp
+
+      - name: Run iOS tests for RickAndMortyApp
+        run: |
+          xcodebuild test \
+            -project RickAndMorty/RickAndMorty.xcodeproj \
+            -scheme RickAndMortyApp \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            ONLY_ACTIVE_ARCH=YES
