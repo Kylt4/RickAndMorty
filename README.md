@@ -10,3 +10,5 @@
 # [Presenter VS ViewModel](./PresenterVSViewModelSpecs.md)
 
 # [Modular Presenter ViewModel with Adapter](./ModularAdapterPresenterViewModel.md)
+
+# [Modular Main Composition](./ModularMainComposition.md)
